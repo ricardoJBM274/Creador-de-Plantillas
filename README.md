@@ -27,10 +27,15 @@ Dado que es un proyecto puramente frontend (HTML, CSS, Vanilla JS), no requiere 
    ```bash
    git clone [https://github.com/tu-usuario/generador-capturas.git](https://github.com/tu-usuario/generador-capturas.git)
 
-Abre el archivo index.html en tu navegador web preferido.
+2. Abre el archivo index.html en tu navegador web preferido.
 
 ¡Empieza a diseñar! Selecciona un dispositivo, sube tu captura de pantalla y ajusta los controles en el panel lateral.
 
 Exporta tu diseño en formato PNG directamente a tu equipo.
 
 (Nota: Si usas VS Code, puedes usar la extensión "Live Server" para una experiencia de desarrollo más fluida).
+
+# 👨‍💻 Autor
+Ricardo Javier Beltran Mejia
+
+Desarrollador de Aplicaciones Web y Móviles.
