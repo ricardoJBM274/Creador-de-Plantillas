@@ -1,0 +1,764 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+app.js
+estilos.css
+index.html
+mockup_tablet.png
+mockup.png
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="app.js">
+const canvas = document.getElementById('lienzo');
+const ctx = canvas.getContext('2d');
+
+const tipoDispositivo = document.getElementById('tipoDispositivo');
+const escalaDispositivo = document.getElementById('escalaDispositivo');
+const escalaValor = document.getElementById('escalaValor');
+const dispX = document.getElementById('dispX');
+const dispY = document.getElementById('dispY');
+const dispRot = document.getElementById('dispRot');
+
+// Controles del Segundo Dispositivo
+const activarDisp2 = document.getElementById('activarDisp2');
+const panelDisp2 = document.getElementById('panelDisp2');
+const escalaDispositivo2 = document.getElementById('escalaDispositivo2');
+const escalaValor2 = document.getElementById('escalaValor2');
+const dispX2 = document.getElementById('dispX2');
+const dispY2 = document.getElementById('dispY2');
+const dispRot2 = document.getElementById('dispRot2');
+const imagenUpload2 = document.getElementById('imagenUpload2');
+
+const tituloInput = document.getElementById('tituloInput');
+const fuenteTexto = document.getElementById('fuenteTexto');
+const textoX = document.getElementById('textoX');
+const textoY = document.getElementById('textoY');
+const textoRot = document.getElementById('textoRot');
+const sombraTexto = document.getElementById('sombraTexto');
+
+const colorFondo = document.getElementById('colorFondo');
+const colorTexto = document.getElementById('colorTexto');
+const imagenUpload = document.getElementById('imagenUpload');
+const btnDescargar = document.getElementById('btnDescargar');
+
+const listaPantallas = document.getElementById('listaPantallas');
+const btnNuevaPantalla = document.getElementById('btnNuevaPantalla');
+const btnEliminarPantalla = document.getElementById('btnEliminarPantalla');
+const btnExportar = document.getElementById('btnExportar');
+const btnImportar = document.getElementById('btnImportar');
+const nombrePlantilla = document.getElementById('nombrePlantilla');
+
+const config = {
+    telefono: { canvasW: 1080, canvasH: 1920, tamanoFuente: "80px", textY: 250, mockupAncho: 800, mockupAlto: 1500, mockupY: 320, bordeX: 18, bordeY: 22, radioEsquina: 45, src: 'mockup.png' },
+    tablet: { canvasW: 1600, canvasH: 2560, tamanoFuente: "130px", textY: 350, mockupAncho: 1300, mockupAlto: 1950, mockupY: 450, bordeX: 25, bordeY: 30, radioEsquina: 30, src: 'mockup_tablet.png' }
+};
+
+let imgMockup = new Image();
+let cfgActual = config.telefono;
+
+// Estado Global (Ahora soporta el Disp 2)
+let pantallas = [{
+    dispositivo: 'telefono', escala: 100, dX: 0, dY: 0, dRot: 0,
+    activo2: false, escala2: 100, dX2: 0, dY2: 0, dRot2: 0, imagenSrc2: null, imgObj2: null,
+    titulo: '¡Descarga mi App!', tX: 0, tY: 0, tRot: 0, fuenteFamiliar: 'sans-serif', conSombra: false,
+    colorFondo: '#2c3e50', colorTexto: '#ffffff', imagenSrc: null, imgObj: null
+}];
+let indiceActual = 0; 
+
+function renderizarBotonesPantallas() {
+    listaPantallas.innerHTML = ''; 
+    pantallas.forEach((pantalla, index) => {
+        const btn = document.createElement('button');
+        btn.classList.add('btn-pantalla');
+        if (index === indiceActual) btn.classList.add('activa');
+        btn.textContent = `${index + 1}`; 
+        btn.addEventListener('click', () => cambiarPantalla(index));
+        listaPantallas.appendChild(btn);
+    });
+}
+
+function guardarEstadoActual() {
+    if(!pantallas[indiceActual]) return;
+    const p = pantallas[indiceActual];
+    p.dispositivo = tipoDispositivo.value;
+    p.escala = parseInt(escalaDispositivo.value); p.dX = parseInt(dispX.value); p.dY = parseInt(dispY.value); p.dRot = parseInt(dispRot.value);
+    
+    // Guardamos estado del Disp 2
+    p.activo2 = activarDisp2.checked;
+    p.escala2 = parseInt(escalaDispositivo2.value); p.dX2 = parseInt(dispX2.value); p.dY2 = parseInt(dispY2.value); p.dRot2 = parseInt(dispRot2.value);
+    
+    p.titulo = tituloInput.value; p.tX = parseInt(textoX.value); p.tY = parseInt(textoY.value); p.tRot = parseInt(textoRot.value);
+    p.fuenteFamiliar = fuenteTexto.value; p.conSombra = sombraTexto.checked;
+    p.colorFondo = colorFondo.value; p.colorTexto = colorTexto.value;
+}
+
+function cambiarPantalla(nuevoIndice, guardarPrevio = true) {
+    if (guardarPrevio) guardarEstadoActual(); 
+    indiceActual = nuevoIndice;
+    const p = pantallas[indiceActual];
+    
+    tipoDispositivo.value = p.dispositivo;
+    escalaDispositivo.value = p.escala || 100; escalaValor.textContent = escalaDispositivo.value + '%';
+    dispX.value = p.dX || 0; dispY.value = p.dY || 0; dispRot.value = p.dRot || 0;
+    
+    // Restaurar Disp 2
+    activarDisp2.checked = p.activo2 || false;
+    panelDisp2.style.display = activarDisp2.checked ? 'block' : 'none';
+    escalaDispositivo2.value = p.escala2 || 100; escalaValor2.textContent = escalaDispositivo2.value + '%';
+    dispX2.value = p.dX2 || 0; dispY2.value = p.dY2 || 0; dispRot2.value = p.dRot2 || 0;
+    
+    tituloInput.value = p.titulo; textoX.value = p.tX || 0; textoY.value = p.tY || 0; textoRot.value = p.tRot || 0;
+    fuenteTexto.value = p.fuenteFamiliar || 'sans-serif'; sombraTexto.checked = p.conSombra || false;
+    colorFondo.value = p.colorFondo; colorTexto.value = p.colorTexto;
+    
+    cfgActual = config[p.dispositivo];
+    canvas.width = cfgActual.canvasW; canvas.height = cfgActual.canvasH;
+    
+    renderizarBotonesPantallas(); 
+    cargarMockup(); 
+}
+
+btnNuevaPantalla.addEventListener('click', () => {
+    guardarEstadoActual();
+    pantallas.push({
+        dispositivo: tipoDispositivo.value, escala: 100, dX: 0, dY: 0, dRot: 0,
+        activo2: false, escala2: 100, dX2: 0, dY2: 0, dRot2: 0, imagenSrc2: null, imgObj2: null,
+        titulo: 'Nueva Pantalla', tX: 0, tY: 0, tRot: 0, fuenteFamiliar: fuenteTexto.value, conSombra: sombraTexto.checked,
+        colorFondo: colorFondo.value, colorTexto: colorTexto.value, imagenSrc: null, imgObj: null
+    });
+    cambiarPantalla(pantallas.length - 1); 
+});
+
+btnEliminarPantalla.addEventListener('click', () => {
+    if (pantallas.length === 1) return alert("No puedes eliminar la única pantalla.");
+    if (confirm("¿Eliminar esta pantalla?")) {
+        pantallas.splice(indiceActual, 1); 
+        cambiarPantalla(indiceActual >= pantallas.length ? pantallas.length - 1 : indiceActual, false); 
+    }
+});
+
+function cargarMockup() {
+    imgMockup.src = cfgActual.src;
+    imgMockup.onload = dibujarCanvas;
+}
+
+function crearCaminoRedondeado(ctx, x, y, width, height, radius) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y); ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius); ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height); ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius); ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath();
+}
+
+function dibujarCanvas() {
+    const p = pantallas[indiceActual];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. FONDO
+    ctx.fillStyle = p.colorFondo;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 2. TEXTO
+    ctx.save(); 
+    ctx.translate((canvas.width / 2) + (p.tX || 0), cfgActual.textY + (p.tY || 0));
+    ctx.rotate((p.tRot || 0) * Math.PI / 180);
+    ctx.fillStyle = p.colorTexto;
+    ctx.font = `bold ${cfgActual.tamanoFuente} ${p.fuenteFamiliar}`;
+    ctx.textAlign = "center";
+    if (p.conSombra) {
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.6)'; ctx.shadowBlur = 10; ctx.shadowOffsetX = 4; ctx.shadowOffsetY = 4;
+    }
+    ctx.fillText(p.titulo, 0, 0);
+    ctx.restore(); 
+
+    // --- SUB-FUNCIÓN REUTILIZABLE PARA DIBUJAR DISPOSITIVOS ---
+    function dibujarDispositivo(escalaVal, dx, dy, dRot, imgApp) {
+        ctx.save();
+        const escala = (escalaVal || 100) / 100;
+        const anchoMock = cfgActual.mockupAncho * escala;
+        const altoMock = cfgActual.mockupAlto * escala;
+        
+        const centroX = (canvas.width / 2) + (dx || 0);
+        const centroY = cfgActual.mockupY + (altoMock / 2) + (dy || 0);
+
+        ctx.translate(centroX, centroY);
+        ctx.rotate((dRot || 0) * Math.PI / 180);
+
+        const drawX = -anchoMock / 2;
+        const drawY = -altoMock / 2;
+
+        if (imgApp) {
+            const bordeX = cfgActual.bordeX * escala;
+            const bordeY = cfgActual.bordeY * escala;
+            const anchoPantalla = anchoMock - (bordeX * 2);
+            const altoPantalla = altoMock - (bordeY * 2);
+            const posX = drawX + bordeX;
+            const posY = drawY + bordeY;
+            const radioEsquina = cfgActual.radioEsquina * escala;
+
+            ctx.save();
+            crearCaminoRedondeado(ctx, posX, posY, anchoPantalla, altoPantalla, radioEsquina);
+            ctx.clip();
+            ctx.drawImage(imgApp, posX, posY, anchoPantalla, altoPantalla);
+            ctx.restore();
+        }
+
+        if (imgMockup.complete && imgMockup.naturalWidth !== 0) {
+            ctx.drawImage(imgMockup, drawX, drawY, anchoMock, altoMock);
+        }
+        ctx.restore();
+    }
+
+    // 3. DIBUJAR DISPOSITIVO 2 (SE DIBUJA PRIMERO PARA QUE QUEDE ATRÁS)
+    if (p.activo2) {
+        dibujarDispositivo(p.escala2, p.dX2, p.dY2, p.dRot2, p.imgObj2);
+    }
+
+    // 4. DIBUJAR DISPOSITIVO 1 (SE DIBUJA DESPUÉS PARA QUE QUEDE AL FRENTE)
+    dibujarDispositivo(p.escala, p.dX, p.dY, p.dRot, p.imgObj);
+}
+
+// --- EVENTOS ---
+activarDisp2.addEventListener('change', (e) => {
+    panelDisp2.style.display = e.target.checked ? 'block' : 'none';
+    guardarEstadoActual(); dibujarCanvas();
+});
+
+const inputs = [
+    tituloInput, fuenteTexto, sombraTexto, colorFondo, colorTexto, tipoDispositivo, 
+    escalaDispositivo, dispX, dispY, dispRot, 
+    escalaDispositivo2, dispX2, dispY2, dispRot2, 
+    textoX, textoY, textoRot
+];
+
+inputs.forEach(input => {
+    input.addEventListener(input === sombraTexto ? 'change' : 'input', () => {
+        if (input === escalaDispositivo) escalaValor.textContent = escalaDispositivo.value + '%';
+        if (input === escalaDispositivo2) escalaValor2.textContent = escalaDispositivo2.value + '%';
+        
+        guardarEstadoActual();
+        if(input === tipoDispositivo) {
+            cfgActual = config[tipoDispositivo.value];
+            canvas.width = cfgActual.canvasW; canvas.height = cfgActual.canvasH;
+            cargarMockup();
+        } else {
+            dibujarCanvas();
+        }
+    });
+});
+
+imagenUpload.addEventListener('change', function(e) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() { pantallas[indiceActual].imagenSrc = event.target.result; pantallas[indiceActual].imgObj = img; dibujarCanvas(); }
+        img.src = event.target.result;
+    }
+    if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+});
+
+// Carga de imagen para el Disp 2
+imagenUpload2.addEventListener('change', function(e) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() { pantallas[indiceActual].imagenSrc2 = event.target.result; pantallas[indiceActual].imgObj2 = img; dibujarCanvas(); }
+        img.src = event.target.result;
+    }
+    if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+});
+
+btnDescargar.addEventListener('click', () => {
+    const enlace = document.createElement('a');
+    enlace.download = `pantalla_${indiceActual + 1}_${tipoDispositivo.value}.png`;
+    enlace.href = canvas.toDataURL('image/png');
+    enlace.click();
+});
+
+btnExportar.addEventListener('click', () => {
+    guardarEstadoActual();
+    const datosExportar = pantallas.map(p => ({
+        dispositivo: p.dispositivo, escala: p.escala, dX: p.dX, dY: p.dY, dRot: p.dRot,
+        activo2: p.activo2, escala2: p.escala2, dX2: p.dX2, dY2: p.dY2, dRot2: p.dRot2, imagenSrc2: p.imagenSrc2,
+        titulo: p.titulo, tX: p.tX, tY: p.tY, tRot: p.tRot, fuenteFamiliar: p.fuenteFamiliar, conSombra: p.conSombra,
+        colorFondo: p.colorFondo, colorTexto: p.colorTexto, imagenSrc: p.imagenSrc
+    }));
+    const jsonString = JSON.stringify(datosExportar, null, 2);
+    let nArchivo = nombrePlantilla.value.trim() || "mi_proyecto";
+    if (!nArchivo.endsWith('.json')) nArchivo += ".json";
+    const blob = new Blob([jsonString], { type: "application/json" });
+    const enlace = document.createElement('a');
+    enlace.href = URL.createObjectURL(blob); enlace.download = nArchivo; enlace.click();
+});
+
+btnImportar.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        try {
+            const datosGuardados = JSON.parse(event.target.result);
+            pantallas = datosGuardados.map(p => {
+                let imgTemp = null; let imgTemp2 = null;
+                if (p.imagenSrc) { imgTemp = new Image(); imgTemp.src = p.imagenSrc; imgTemp.onload = () => { dibujarCanvas(); } }
+                if (p.imagenSrc2) { imgTemp2 = new Image(); imgTemp2.src = p.imagenSrc2; imgTemp2.onload = () => { dibujarCanvas(); } }
+                return { ...p, imgObj: imgTemp, imgObj2: imgTemp2 };
+            });
+            cambiarPantalla(0, false); 
+        } catch (error) {
+            alert("El archivo no es válido."); console.error(error);
+        }
+    };
+    reader.readAsText(file); e.target.value = ""; 
+});
+
+renderizarBotonesPantallas();
+cargarMockup();
+</file>
+
+<file path="estilos.css">
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+body {
+    background-color: #1e1e1e;
+    color: #fff;
+}
+
+.contenedor {
+    display: flex;
+    height: 100%;
+}
+
+.panel-controles {
+    width: 550;
+    background-color: #2d2d2d;
+    padding: 20px;
+    border-right: 1px solid #444;
+}
+
+.panel-controles h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.control-grupo {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.control-grupo label {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.control-grupo input[type="text"] {
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+}
+
+.area-canvas {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #121212;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Hacemos que el canvas sea responsive visualmente, pero mantiene sus 1080x1920 reales */
+canvas {
+    max-height: 90vh;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    background-color: white; /* Por si falla el renderizado */
+}
+
+/* Estilo para el botón de descarga */
+.btn-accion {
+    margin-top: 20px;
+    padding: 12px;
+    background-color: #00e676;
+    color: #121212;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-accion:hover {
+    background-color: #00c853;
+}
+
+.divisor {
+    border: 0;
+    border-top: 1px solid #555;
+    margin: 20px 0;
+}
+
+.btn-secundario {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #444;
+    color: #fff;
+    border: 1px solid #666;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+    text-align: center;
+}
+
+.btn-secundario:hover {
+    background-color: #555;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* --- ESTILOS DEL GESTOR DE PANTALLAS --- */
+.seccion-pantallas {
+    margin-bottom: 15px;
+}
+
+.seccion-pantallas h3 {
+    font-size: 1rem;
+    color: #aaa;
+    margin-bottom: 10px;
+    font-weight: normal;
+}
+
+.lista-pantallas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.btn-pantalla {
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.btn-pantalla:hover {
+    background-color: #444;
+}
+
+/* Estilo para la pantalla que estamos editando actualmente */
+.btn-pantalla.activa {
+    background-color: #00e676;
+    color: #121212;
+    font-weight: bold;
+    border-color: #00c853;
+}
+
+/* Botón para eliminar pantallas */
+.btn-peligro {
+    background-color: #d32f2f;
+    color: #fff;
+    border: 1px solid #b71c1c;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+    text-align: center;
+}
+
+.btn-peligro:hover {
+    background-color: #f44336;
+}
+
+/* --- ESTILOS PARA PANELES AVANZADOS (ACORDEÓN) --- */
+.panel-avanzado {
+    background-color: #333;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    border: 1px solid #444;
+}
+
+.panel-avanzado summary {
+    padding: 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    background-color: #3d3d3d;
+    list-style: none; /* Oculta la flecha nativa */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.panel-avanzado summary:hover {
+    background-color: #4d4d4d;
+}
+
+/* Ocultar flecha nativa en navegadores basados en WebKit (Chrome/Edge) */
+.panel-avanzado summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Crear nuestro propio indicador de "+" y "-" */
+.panel-avanzado summary::after {
+    content: '+';
+    font-size: 1.2rem;
+    color: #00e676;
+}
+
+.panel-avanzado[open] summary::after {
+    content: '-';
+    color: #ff5252;
+}
+
+.grupo-desplegable {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espacio entre controles verticales */
+}
+
+.control-vertical label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: #ccc;
+}
+
+.control-vertical input[type="range"] {
+    width: 100%;
+    cursor: pointer;
+}
+</file>
+
+<file path="index.html">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Capturas Play Store</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <div class="contenedor">
+        <aside class="panel-controles">
+            <h2>Controles</h2>
+
+            <div class="seccion-pantallas">
+                <h3>Vistas del Proyecto</h3>
+                <div id="listaPantallas" class="lista-pantallas"></div>
+                <div style="display: flex; gap: 5px; margin-top: 10px;">
+                    <button id="btnNuevaPantalla" class="btn-secundario" style="flex: 1; margin-top: 0;">+ Añadir</button>
+                    <button id="btnEliminarPantalla" class="btn-peligro" style="flex: 1;">- Eliminar</button>
+                </div>
+            </div>
+            <hr class="divisor">
+            
+            <div class="control-grupo">
+                <label for="tipoDispositivo">Formato de Pantalla:</label>
+                <select id="tipoDispositivo">
+                    <option value="telefono">Teléfono (1080 x 1920)</option>
+                    <option value="tablet">Tablet 10" (1600 x 2560)</option>
+                </select>
+            </div>
+
+            <div class="control-grupo">
+                <label for="tituloInput">Título del Banner:</label>
+                <input type="text" id="tituloInput" value="¡Descarga mi App!" style="margin-bottom: 5px;">
+                <select id="fuenteTexto">
+                    <option value="sans-serif">Sans-Serif (Moderna)</option>
+                    <option value="serif">Serif (Clásica)</option>
+                    <option value="Impact, sans-serif">Impact (Llamativa)</option>
+                    <option value="'Courier New', Courier, monospace">Courier (Código)</option>
+                </select>
+            </div>
+
+            <details class="panel-avanzado">
+                <summary>Avanzado: Posición de Texto</summary>
+                <div class="grupo-desplegable">
+                    <div class="control-vertical">
+                        <label for="textoX">Mover Horizontalmente (Eje X):</label>
+                        <input type="range" id="textoX" min="-1000" max="1000" value="0">
+                    </div>
+                    <div class="control-vertical">
+                        <label for="textoY">Mover Verticalmente (Eje Y):</label>
+                        <input type="range" id="textoY" min="-1000" max="1000" value="0">
+                    </div>
+                    <div class="control-vertical">
+                        <label for="textoRot">Rotación (°):</label>
+                        <input type="range" id="textoRot" min="-180" max="180" value="0">
+                    </div>
+                </div>
+            </details>
+
+            <div class="control-grupo" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 15px;">
+                <input type="checkbox" id="sombraTexto">
+                <label for="sombraTexto" style="margin: 0;">Sombra en el texto</label>
+            </div>
+
+            <hr class="divisor">
+            <h3>Diseño del Dispositivo</h3>
+            
+            <div class="control-grupo">
+                <label for="escalaDispositivo">Tamaño del Dispositivo: <span id="escalaValor">100%</span></label>
+                <input type="range" id="escalaDispositivo" min="50" max="200" value="100">
+            </div>
+
+            <details class="panel-avanzado">
+                <summary>Avanzado: Posición de Dispositivo</summary>
+                <div class="grupo-desplegable">
+                    <div class="control-vertical">
+                        <label for="dispX">Mover Horizontalmente (Eje X):</label>
+                        <input type="range" id="dispX" min="-1000" max="1000" value="0">
+                    </div>
+                    <div class="control-vertical">
+                        <label for="dispY">Mover Verticalmente (Eje Y):</label>
+                        <input type="range" id="dispY" min="-1000" max="1000" value="0">
+                    </div>
+                    <div class="control-vertical">
+                        <label for="dispRot">Rotación (°):</label>
+                        <input type="range" id="dispRot" min="-180" max="180" value="0">
+                    </div>
+                </div>
+            </details>
+
+            <hr class="divisor">
+            <div class="control-grupo" style="flex-direction: row; align-items: center; gap: 10px;">
+                <input type="checkbox" id="activarDisp2">
+                <label for="activarDisp2" style="margin: 0; font-weight: bold; color: #00e676;">+ Añadir 2º Teléfono</label>
+            </div>
+
+            <div id="panelDisp2" style="display: none; border-left: 2px solid #00e676; padding-left: 10px; margin-bottom: 15px;">
+                
+                <div class="control-grupo">
+                    <label for="escalaDispositivo2">Tamaño 2º Disp: <span id="escalaValor2">100%</span></label>
+                    <input type="range" id="escalaDispositivo2" min="50" max="200" value="100">
+                </div>
+
+                <details class="panel-avanzado">
+                    <summary>Avanzado: Posición 2º Disp</summary>
+                    <div class="grupo-desplegable">
+                        <div class="control-vertical">
+                            <label>Mover Horizontalmente (Eje X):</label>
+                            <input type="range" id="dispX2" min="-1000" max="1000" value="0">
+                        </div>
+                        <div class="control-vertical">
+                            <label>Mover Verticalmente (Eje Y):</label>
+                            <input type="range" id="dispY2" min="-1000" max="1000" value="0">
+                        </div>
+                        <div class="control-vertical">
+                            <label>Rotación (°):</label>
+                            <input type="range" id="dispRot2" min="-180" max="180" value="0">
+                        </div>
+                    </div>
+                </details>
+
+                <div class="control-grupo">
+                    <label>Subir Captura (2º Disp):</label>
+                    <input type="file" id="imagenUpload2" accept="image/png, image/jpeg">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div class="control-grupo" style="flex: 1;">
+                    <label for="colorFondo">Fondo:</label>
+                    <input type="color" id="colorFondo" value="#2c3e50" style="width: 100%;">
+                </div>
+                <div class="control-grupo" style="flex: 1;">
+                    <label for="colorTexto">Texto:</label>
+                    <input type="color" id="colorTexto" value="#ffffff" style="width: 100%;">
+                </div>
+            </div>
+
+            <div class="control-grupo">
+                <label for="imagenUpload">Subir Captura de App:</label>
+                <input type="file" id="imagenUpload" accept="image/png, image/jpeg">
+            </div>
+
+            <button id="btnDescargar" class="btn-accion">Descargar Diseño (PNG)</button>
+
+            <hr class="divisor">
+            
+            <div class="control-grupo">
+                <label for="nombrePlantilla">Nombre del Archivo JSON:</label>
+                <input type="text" id="nombrePlantilla" value="mi_proyecto" placeholder="Ej: vista_login">
+            </div>
+
+            <button id="btnExportar" class="btn-secundario">Guardar Proyecto</button>
+            <label for="btnImportar" class="btn-secundario text-center">Cargar Proyecto</label>
+            <input type="file" id="btnImportar" accept=".json" style="display: none;">
+
+        </aside>
+
+        <main class="area-canvas">
+            <canvas id="lienzo" width="1080" height="1920"></canvas>
+        </main>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
+</file>
+
+</files>

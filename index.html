@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Capturas Play Store</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <div class="contenedor">
+        <aside class="panel-controles">
+            <h2>Panel de Diseño</h2>
+
+            <div class="seccion-pantallas">
+                <h3>Vistas del Proyecto</h3>
+                <div id="listaPantallas" class="lista-pantallas"></div>
+                <div style="display: flex; gap: 5px; margin-top: 10px;">
+                    <button id="btnNuevaPantalla" class="btn-secundario" style="flex: 1; margin-top: 0;">+ Añadir</button>
+                    <button id="btnEliminarPantalla" class="btn-peligro" style="flex: 1;">- Eliminar</button>
+                </div>
+            </div>
+            
+            <hr class="divisor">
+
+            <h3>Ajustes Globales</h3>
+            <div class="control-grupo">
+                <label for="tipoDispositivo">Formato de Pantalla:</label>
+                <select id="tipoDispositivo">
+                    <option value="telefono">Teléfono (1080 x 1920)</option>
+                    <option value="tablet">Tablet 10" (1600 x 2560)</option>
+                </select>
+            </div>
+
+            <div class="control-grupo">
+                <label for="tipoFondo">Estilo de Fondo:</label>
+                <select id="tipoFondo">
+                    <option value="solido">Color Sólido</option>
+                    <option value="degradado">Degradado Lineal</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div class="control-grupo" style="flex: 1;">
+                    <label id="lblColorFondo" for="colorFondo">Fondo:</label>
+                    <input type="color" id="colorFondo" value="#2c3e50" style="width: 100%; cursor: pointer;">
+                </div>
+                <div class="control-grupo" id="grupoColor2" style="flex: 1; display: none;">
+                    <label for="colorFondo2">Fondo (Abajo):</label>
+                    <input type="color" id="colorFondo2" value="#1a252f" style="width: 100%; cursor: pointer;">
+                </div>
+                <div class="control-grupo" style="flex: 1;">
+                    <label for="colorTexto">Texto:</label>
+                    <input type="color" id="colorTexto" value="#ffffff" style="width: 100%; cursor: pointer;">
+                </div>
+            </div>
+
+            <hr class="divisor">
+
+            <h3>Diseño de Texto</h3>
+            <div class="control-grupo">
+                <label for="tituloInput">Título del Banner:</label>
+                <input type="text" id="tituloInput" value="¡Descarga mi App!" style="margin-bottom: 5px;">
+                <select id="fuenteTexto">
+                    <option value="sans-serif">Sans-Serif (Moderna)</option>
+                    <option value="serif">Serif (Clásica)</option>
+                    <option value="Impact, sans-serif">Impact (Llamativa)</option>
+                    <option value="'Courier New', Courier, monospace">Courier (Código)</option>
+                </select>
+            </div>
+
+            <div class="control-grupo" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 15px;">
+                <input type="checkbox" id="sombraTexto" style="cursor: pointer;">
+                <label for="sombraTexto" style="margin: 0; cursor: pointer;">Aplicar sombra al texto</label>
+            </div>
+
+            <details class="panel-avanzado">
+                <summary>Avanzado: Posición de Texto</summary>
+                <div class="grupo-desplegable">
+                    <div class="control-vertical">
+                        <label for="textoX">Mover Horizontalmente (X):</label>
+                        <input type="range" id="textoX" min="-1000" max="1000" value="0">
+                    </div>
+                    <div class="control-vertical">
+                        <label for="textoY">Mover Verticalmente (Y):</label>
+                        <input type="range" id="textoY" min="-1000" max="1000" value="0">
+                    </div>
+                    <div class="control-vertical">
+                        <label for="textoRot">Rotación (°):</label>
+                        <input type="range" id="textoRot" min="-180" max="180" value="0">
+                    </div>
+                </div>
+            </details>
+
+            <hr class="divisor">
+
+            <h3>Dispositivo Principal</h3>
+            
+            <div class="control-grupo">
+                <label for="imagenUpload" style="font-weight: bold; color: #00e676;">1. Subir Captura de App:</label>
+                <input type="file" id="imagenUpload" accept="image/png, image/jpeg">
+            </div>
+
+            <div class="control-grupo">
+                <label for="escalaDispositivo">Tamaño del Dispositivo: <span id="escalaValor">100%</span></label>
+                <input type="range" id="escalaDispositivo" min="50" max="200" value="100">
+            </div>
+
+            <details class="panel-avanzado">
+                <summary>Avanzado: Posición de Dispositivo</summary>
+                <div class="grupo-desplegable">
+                    <div class="control-vertical">
+                        <label for="dispX">Mover Horizontalmente (X):</label>
+                        <input type="range" id="dispX" min="-1000" max="1000" value="0">
+                    </div>
+                    <div class="control-vertical">
+                        <label for="dispY">Mover Verticalmente (Y):</label>
+                        <input type="range" id="dispY" min="-1000" max="1000" value="0">
+                    </div>
+                    <div class="control-vertical">
+                        <label for="dispRot">Rotación (°):</label>
+                        <input type="range" id="dispRot" min="-180" max="180" value="0">
+                    </div>
+                </div>
+            </details>
+
+            <hr class="divisor">
+
+            <div class="control-grupo" style="flex-direction: row; align-items: center; gap: 10px;">
+                <input type="checkbox" id="activarDisp2" style="cursor: pointer;">
+                <label for="activarDisp2" style="margin: 0; font-weight: bold; color: #00e676; cursor: pointer;">+ Añadir 2º Teléfono</label>
+            </div>
+
+            <div id="panelDisp2" style="display: none; border-left: 2px solid #00e676; padding-left: 10px; margin-bottom: 15px;">
+                <div class="control-grupo">
+                    <label style="font-weight: bold; color: #00e676;">2. Subir Captura (2º Disp):</label>
+                    <input type="file" id="imagenUpload2" accept="image/png, image/jpeg">
+                </div>
+
+                <div class="control-grupo">
+                    <label for="escalaDispositivo2">Tamaño 2º Disp: <span id="escalaValor2">100%</span></label>
+                    <input type="range" id="escalaDispositivo2" min="50" max="200" value="100">
+                </div>
+
+                <details class="panel-avanzado">
+                    <summary>Avanzado: Posición 2º Disp</summary>
+                    <div class="grupo-desplegable">
+                        <div class="control-vertical">
+                            <label>Mover Horizontalmente (X):</label>
+                            <input type="range" id="dispX2" min="-1000" max="1000" value="0">
+                        </div>
+                        <div class="control-vertical">
+                            <label>Mover Verticalmente (Y):</label>
+                            <input type="range" id="dispY2" min="-1000" max="1000" value="0">
+                        </div>
+                        <div class="control-vertical">
+                            <label>Rotación (°):</label>
+                            <input type="range" id="dispRot2" min="-180" max="180" value="0">
+                        </div>
+                    </div>
+                </details>
+            </div>
+
+            <hr class="divisor">
+
+            <button id="btnDescargar" class="btn-accion" style="width: 100%; margin-bottom: 20px;">⬇️ Descargar Diseño (PNG)</button>
+            
+            <div class="control-grupo">
+                <label for="nombrePlantilla">Nombre del Archivo JSON:</label>
+                <input type="text" id="nombrePlantilla" value="mi_proyecto" placeholder="Ej: vista_login">
+            </div>
+
+            <div style="display: flex; gap: 5px;">
+                <button id="btnExportar" class="btn-secundario" style="flex: 1; margin-top: 0;">Guardar Proyecto</button>
+                <label for="btnImportar" class="btn-secundario text-center" style="flex: 1; margin-top: 0; box-sizing: border-box;">Cargar Proyecto</label>
+                <input type="file" id="btnImportar" accept=".json" style="display: none;">
+            </div>
+
+            <hr class="divisor">
+            <h3 style="color: #00e676;">Herramienta Extra: Icono Play Store</h3>
+            <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 10px;">
+                Google Play exige que el icono de la app sea exactamente de 512x512 píxeles.
+            </p>
+            
+            <div class="control-grupo">
+                <label for="logoUpload">Subir tu Logo Original:</label>
+                <input type="file" id="logoUpload" accept="image/png, image/jpeg">
+            </div>
+
+            <button id="btnGenerarIcono" class="btn-secundario" style="background-color: #00897b; border-color: #00796b;">
+                Generar Icono (512x512)
+            </button>
+
+            <hr class="divisor">
+            <h3 style="color: #00e676;">Herramienta Extra: Gráfico de Funciones</h3>
+            <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 10px;">
+                Google Play exige una "Imagen Destacada" de exactamente 1024x500 píxeles sin transparencias.
+            </p>
+            
+            <div class="control-grupo">
+                <label for="featureUpload">Subir tu Imagen Original:</label>
+                <input type="file" id="featureUpload" accept="image/png, image/jpeg">
+            </div>
+
+            <button id="btnGenerarFeature" class="btn-secundario" style="background-color: #00897b; border-color: #00796b;">
+                Generar Gráfico (1024x500)
+            </button>
+
+        </aside>
+
+        <main class="area-canvas">
+            <canvas id="lienzo" width="1080" height="1920"></canvas>
+        </main>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
